@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 
-describe("Testes para consulta de filmes", () => {
+describe("Testes para consulta e criação de filmes", () => {
   let userName = faker.internet.userName();
   let userEmail = faker.internet.email();
   let userPassword = faker.internet.password(8);
@@ -49,7 +49,28 @@ describe("Testes para consulta de filmes", () => {
       },
     }).then((response) => {
       expect(response.status).to.be.equal(201);
+      expect(response.body).to.have.property("id");
     });
+  });
+
+  it("Deve receber bad request ao tentar cadastrar um filme sem o título", function () {
+    cy.request({
+      method: "POST",
+      url: "/api/movies",
+      headers: {
+        Authorization: "Bearer " + userToken,
+      },
+      failOnStatusCode: false,
+      body: {
+        genre: "Ação",
+        description: "Um filme de corrida e aventura",
+        durationInMinutes: 240,
+        releaseYear: 2015,
+      },
+      failOnStatusCode: false,
+    })
+      .its("status")
+      .should("to.equal", 400);
   });
 
   it("Buscar um filme por ID", () => {
@@ -58,10 +79,20 @@ describe("Testes para consulta de filmes", () => {
       url: "/api/movies/1",
     }).then((response) => {
       expect(response.status).to.be.equal(200);
-      expect(response.body.title).to.be.equal("Perdido em Marte");
-      expect(response.body.releaseYear).to.be.equal(2015);
+      expect(response.body.title).to.be.equal("Filme atualizado");
+      expect(response.body.genre).to.be.equal("sadas");
       expect(response.body).to.have.property("genre");
     });
+  });
+
+  it("Deve receber bad request ao buscar um filme com um ID inválido", () => {
+    cy.request({
+      method: "GET",
+      url: "/api/movies/d",
+      failOnStatusCode: false,
+    })
+      .its("status")
+      .should("to.equal", 400);
   });
 
   it("Listar filmes", () => {
@@ -75,6 +106,7 @@ describe("Testes para consulta de filmes", () => {
       expect(response.body.length > 0).to.equal(true);
     });
   });
+
   it("Atualizar um filme", function () {
     cy.request({
       method: "PUT",
@@ -106,5 +138,18 @@ describe("Testes para consulta de filmes", () => {
     }).then(function (response) {
       expect(response.status).to.equal(204);
     });
+  });
+
+  it("Deve receber um bad request ao tentar deletar um filme sem inserir o ID", function () {
+    cy.request({
+      method: "DELETE",
+      url: "/api/movies/",
+      headers: {
+        Authorization: "Bearer " + userToken,
+      },
+      failOnStatusCode: false,
+    })
+      .its("status")
+      .should("to.equal", 404);
   });
 });
