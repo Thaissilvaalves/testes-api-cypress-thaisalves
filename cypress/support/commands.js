@@ -76,13 +76,3 @@ Cypress.Commands.add("promoverCritico", function (token) {
     },
   });
 });
-
-Cypress.Commands.add("inativarUsuario", function (token) {
-  return cy.request({
-    method: "PATCH",
-    url: "/api/users/inactivate",
-    headers: {
-      Authorization: "Bearer " + token,
-    },
-  });
-});
