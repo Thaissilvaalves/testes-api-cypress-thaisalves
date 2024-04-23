@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 
-describe("Testes de usuário", function () {
+describe("Testes de rotas /users", function () {
   let userId;
   let userName = faker.internet.userName();
   let userEmail = faker.internet.email();
@@ -8,7 +8,7 @@ describe("Testes de usuário", function () {
   let userToken;
 
   describe("Testes de criação de usuário", function () {
-    it("Cadastrar um novo usuário", () => {
+    it("Deve ser possível cadastrar um novo usuário", () => {
       cy.request("POST", "/api/users", {
         name: userName,
         email: userEmail,
@@ -21,7 +21,7 @@ describe("Testes de usuário", function () {
       });
     });
 
-    it("Buscar informações de um usuário", () => {
+    it("Deve ser possível buscar informações de um usuário", () => {
       cy.request("POST", "/api/auth/login", {
         email: userEmail,
         password: userPassword,
@@ -106,7 +106,7 @@ describe("Testes de usuário", function () {
   });
 
   describe("Testes de consulta de usuário", function () {
-    it("Não é possível um usuário comum checar todos os usuários", function () {
+    it("Não deve ser possível um usuário comum checar todos os usuários", function () {
       cy.log(userToken);
       cy.request({
         method: "GET",
@@ -121,7 +121,7 @@ describe("Testes de usuário", function () {
       });
     });
 
-    it("Admin pode checar todos os usuários", function () {
+    it("Deve ser possível admin checar todos os usuários", function () {
       cy.request({
         method: "PATCH",
         url: "/api/users/admin",
@@ -143,15 +143,23 @@ describe("Testes de usuário", function () {
     });
   });
 
-  describe("Teste de deletar um usuário", function () {
-    it("Deletar um usuário", function () {
-      cy.request({
-        method: "DELETE",
-        url: "/api/users/" + userId,
-        headers: {
-          Authorization: "Bearer " + userToken,
-        },
-      }).then(function (response) {
+  describe("Testes de promoção de usuário", function () {
+    it("Deve ser possível promover um usuário a crítico", function () {
+      cy.promoverCritico(userToken).then(function (response) {
+        expect(response.status).to.equal(204);
+      });
+    });
+
+    it("Deve ser possível promover um usuário a admin", function () {
+      cy.tornarAdmin(userToken).then(function (response) {
+        expect(response.status).to.equal(204);
+      });
+    });
+  });
+
+  describe("Teste de exclusão de usuário", function () {
+    it("Deve ser possível deletar um usuário", function () {
+      cy.deletarUsuario(userId, userToken).then(function (response) {
         expect(response.status).to.equal(204);
       });
     });

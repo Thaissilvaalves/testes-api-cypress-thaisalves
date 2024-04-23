@@ -33,3 +33,56 @@ Cypress.Commands.add("deletarUsuario", function (id, token) {
     },
   });
 });
+
+Cypress.Commands.add("criarUsuario", function (name, email, password) {
+  return cy.request({
+    method: "POST",
+    url: "/api/users/",
+    body: {
+      name: name,
+      email: email,
+      password: password,
+    },
+  });
+});
+
+Cypress.Commands.add("fazerLogin", function (email, password) {
+  return cy.request({
+    method: "POST",
+    url: "/api/auth/login",
+    body: {
+      email: email,
+      password: password,
+    },
+  });
+});
+
+Cypress.Commands.add("tornarAdmin", function (token) {
+  return cy.request({
+    method: "PATCH",
+    url: "/api/users/admin",
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+  });
+});
+
+Cypress.Commands.add("promoverCritico", function (token) {
+  return cy.request({
+    method: "PATCH",
+    url: "/api/users/apply",
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+  });
+});
+
+Cypress.Commands.add("inativarUsuario", function (token) {
+  return cy.request({
+    method: "PATCH",
+    url: "/api/users/inactivate",
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+  });
+});
